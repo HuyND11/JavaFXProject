@@ -10,7 +10,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -19,61 +18,56 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main extends Application {
-
-
+    private Stage window;
+    private Scene homepage, formUpdate, formAdd;
+    private static final DataConnect con = new DataConnect();
 
     @Override
     public void start(Stage stage) throws IOException {
-        DataConnect data = new DataConnect();
+        window = stage;
         VBox container = new VBox();
         VBox listStudent = new VBox();
         VBox form = new VBox();
         container.getChildren().add(listStudent);
         StackPane root = new StackPane();
-        displayAllStudent(listStudent, data);
-        formAdd(form, data);
+        displayAllStudent(listStudent);
+        formAdd(form);
         root.getChildren().add(container);
 
-        Scene ScreenHomepage = new Scene(root, 1200, 500);
-        Scene ScreenFormAdd = new Scene(form, 1200, 500);
-
-        Button addBtn = new Button("ADD");
-        addBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                stage.setScene(ScreenFormAdd);
-            }
-        });
+        homepage = new Scene(root, 1200, 500);
+        formAdd = new Scene(form, 1200, 500);
+//        formUpdate = new Scene(form, 1200, 500);
 
         Button backBtn = new Button("Back");
         backBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                displayAllStudent(listStudent, data);
-                stage.setScene(ScreenHomepage);
+                displayAllStudent(listStudent);
+                window.setScene(homepage);
             }
         });
 
-        container.getChildren().add(addBtn);
         form.getChildren().add(backBtn);
 
         stage.setTitle("Student");
-        stage.setScene(ScreenHomepage);
+        stage.setScene(homepage);
         stage.show();
 
     }
-
     public static void main(String[] args) {
         launch();
     }
 
-    public void  displayAllStudent (VBox vbox, DataConnect con) {
+
+
+    public void  displayAllStudent (VBox vbox) {
         vbox.getChildren().clear();
         List<Student> listStud =  con.getStudent();
         int count = 1;
         GridPane listStudent = new GridPane();
         listStudent.setHgap(10);
         listStudent.setVgap(10);
+        listStudent.setAlignment(Pos.CENTER);
 
         listStudent.add(new Label("NO"), 0, 0);
         listStudent.add(new Label("Name"), 1, 0);
@@ -96,7 +90,7 @@ public class Main extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     con.deleteStudent(std.getId());
-                    displayAllStudent(vbox, con);
+                    displayAllStudent(vbox);
                 }
             });
             Button updateBtn = new Button("Update");
@@ -104,19 +98,28 @@ public class Main extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     con.updateStudent(std.getId(), std);
-
+//                    window.setScene();
                 }
             });
             listStudent.add(deleteBnt, 6,count);
             listStudent.add(updateBtn,7, count);
             count++;
-
         }
+        Button addBtn = new Button("ADD");
+        addBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                window.setScene(formAdd);
+            }
+        });
+        listStudent.add(addBtn,0,count);
         vbox.getChildren().add(listStudent);
-
     }
 
-    public void formAdd (VBox vbox, DataConnect con) {
+    public void formUpdate (int id) {
+
+    }
+    public void formAdd (VBox vbox) {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setVgap(10);
@@ -151,7 +154,7 @@ public class Main extends Application {
         btnAdd.setPadding(new Insets(5, 15, 5, 15));
         btnAdd.setOnAction(e -> {
             String name = tfName.getText();
-            Integer idClass = choiceClass.getSelectionModel().getSelectedIndex()+1;
+            int idClass = choiceClass.getSelectionModel().getSelectedIndex()+1;
             String phone = tfPhone.getText();
             String address = tfAddress.getText();
             Float score = Float.parseFloat(tfScore.getText());
@@ -160,7 +163,7 @@ public class Main extends Application {
             tfPhone.clear();
             tfAddress.clear();
             tfScore.clear();
-            choiceClass.getItems().clear();
+            choiceClass.setValue("");
         });
         grid.add(btnAdd, 1, 5);
         vbox.getChildren().add(grid);

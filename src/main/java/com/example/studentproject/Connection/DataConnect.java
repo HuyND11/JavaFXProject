@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class DataConnect {
     private Connection conn;
 
-    public static final String URL = "jdbc:mysql://localhost/student_javafx";
+    public static final String URL = "jdbc:mysql://localhost/student";
     public static final String USERNAME = "root";
     public static final String PASSWORD = "";
 
@@ -28,18 +28,18 @@ public class DataConnect {
     public ArrayList<Student> getStudent () {
         ArrayList<Student> list = new ArrayList<Student>();
 
-        String sql = "SELECT std_info.id, std_info.classId, std_info.name, std_info.address, std_info.score, std_info.phone, class.className FROM students as std_info JOIN class ON std_info.classId = class.id ORDER BY std_info.id ASC";
+        String sql = "SELECT std_info.id, std_info.classId, std_info.name, std_info.address, std_info.score, std_info.phone, class.className FROM students as std_info LEFT JOIN class ON std_info.classId = class.id ORDER BY std_info.id ASC";
         try {
             ResultSet result = conn.prepareStatement(sql).executeQuery();
             while(result.next()){
 
                 Student std = new Student(
-                    result.getInt("id"),
-                    result.getString("name"),
-                    new Class(result.getInt("classId"),result.getString("className")),
-                    result.getFloat("score"),
-                    result.getString("address"),
-                    result.getString("phone")
+                        result.getInt("id"),
+                        result.getString("name"),
+                        new Class(result.getInt("classId"),result.getString("className")),
+                        result.getFloat("score"),
+                        result.getString("address"),
+                        result.getString("phone")
                 );
                 list.add(std);
             }
