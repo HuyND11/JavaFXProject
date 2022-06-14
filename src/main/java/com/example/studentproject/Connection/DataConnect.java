@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+
 public class DataConnect {
     private Connection conn;
 
@@ -32,7 +33,6 @@ public class DataConnect {
         try {
             ResultSet result = conn.prepareStatement(sql).executeQuery();
             while(result.next()){
-
                 Student std = new Student(
                         result.getInt("id"),
                         result.getString("name"),
@@ -42,6 +42,28 @@ public class DataConnect {
                         result.getString("phone")
                 );
                 list.add(std);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+
+    public  ArrayList<Student> getStudentUpdate (int id){
+        ArrayList<Student> list = new ArrayList<Student>();
+        String sql = "SELECT std_info.id, std_info.classId, std_info.name, std_info.address, std_info.score, std_info.phone, class.className FROM students as std_info LEFT JOIN class ON std_info.classId = class.id WHERE std_info.id = "+ id +" ORDER BY std_info.id ASC";
+        try {
+            ResultSet result = conn.prepareStatement(sql).executeQuery();
+            while (result.next()){
+                list.add(new Student(
+                        result.getInt("id"),
+                        result.getString("name"),
+                        new Class(result.getInt("classId"),result.getString("className")),
+                        result.getFloat("score"),
+                        result.getString("address"),
+                        result.getString("phone")
+                ));
             }
 
         } catch (SQLException e) {
@@ -71,8 +93,13 @@ public class DataConnect {
     }
 
     public void updateStudent (int id, Student std) {
-        String sql = "UPDATE students SET name ='" + std.getName() +"', classId = '" + std.getStudentClass().getId() + "', score = '" + std.getScore() +  "', address = '" + std.getAddress() + "', phone = '" + std.getPhone() + "' WHERE id = " + id;
+        String sql = "UPDATE students SET name ='" + std.getName() +"', classId = " + std.getStudentClass().getId() + ", score = '" + std.getScore() +  "', address = '" + std.getAddress() + "', phone = '" + std.getPhone() + "' WHERE id = " + id;
         System.out.println(sql);
+        try {
+            conn.prepareStatement(sql).executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ArrayList<Class> getListClassName  () {

@@ -27,16 +27,17 @@ public class Main extends Application {
         window = stage;
         VBox container = new VBox();
         VBox listStudent = new VBox();
-        VBox form = new VBox();
+        VBox ViewFormAdd = new VBox();
+        VBox ViewFormUpdate = new VBox();
         container.getChildren().add(listStudent);
         StackPane root = new StackPane();
         displayAllStudent(listStudent);
-        formAdd(form);
+        ScreenFormAdd(ViewFormAdd);
         root.getChildren().add(container);
 
         homepage = new Scene(root, 1200, 500);
-        formAdd = new Scene(form, 1200, 500);
-//        formUpdate = new Scene(form, 1200, 500);
+        formAdd = new Scene(ViewFormAdd, 1200, 500);
+        formUpdate = new Scene(ViewFormUpdate, 1200, 500);
 
         Button backBtn = new Button("Back");
         backBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -46,20 +47,14 @@ public class Main extends Application {
                 window.setScene(homepage);
             }
         });
-
-        form.getChildren().add(backBtn);
-
+        ViewFormAdd.getChildren().add(backBtn);
         stage.setTitle("Student");
         stage.setScene(homepage);
         stage.show();
-
     }
     public static void main(String[] args) {
         launch();
     }
-
-
-
     public void  displayAllStudent (VBox vbox) {
         vbox.getChildren().clear();
         List<Student> listStud =  con.getStudent();
@@ -93,16 +88,63 @@ public class Main extends Application {
                     displayAllStudent(vbox);
                 }
             });
-            Button updateBtn = new Button("Update");
-            updateBtn.setOnAction(new EventHandler<ActionEvent>() {
+            Button EditBtn = new Button("Edit");
+            EditBtn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    con.updateStudent(std.getId(), std);
-//                    window.setScene();
+                    ArrayList<Student> stdUpdate = con.getStudentUpdate(std.getId());
+                    for (var std : stdUpdate) {
+                        System.out.println(std.getName());
+
+                    ChoiceBox choiceClass = new ChoiceBox<>();
+                    ArrayList<Class> listClassName = con.getListClassName();
+                    for (var classItem : listClassName){
+                        choiceClass.getItems().add(classItem.getClassName());
+                    }
+                    listStudent.add(new Label("Name:"), 8, 0);
+                    var tfName = new TextField();
+                    listStudent.add(tfName, 9, 0);
+
+                    listStudent.add(new Label("Class:"), 8, 1);
+                    listStudent.add(choiceClass, 9,1);
+                    //
+                    listStudent.add(new Label("Score:"), 8, 2);
+                    var tfScore = new TextField();
+                    listStudent.add(tfScore, 9, 2);
+                    //
+                    listStudent.add(new Label("Address:"), 8, 3);
+                    var tfAddress = new TextField();
+                    listStudent.add(tfAddress, 9, 3);
+
+                    listStudent.add(new Label("Phone:"), 8, 4);
+                    var tfPhone = new TextField();
+                    listStudent.add(tfPhone, 9, 4);
+                    tfName.setText(std.getName());
+                    choiceClass.setValue(std.getClassName());
+                    tfScore.setText("" + std.getScore());
+                    tfAddress.setText(std.getAddress());
+                    tfPhone.setText(std.getPhone());
+                    var updateBtn = new Button("Update");
+                    updateBtn.setPadding(new Insets(5, 15, 5, 15));
+                    updateBtn.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            String name = tfName.getText();
+                            int idClass = choiceClass.getSelectionModel().getSelectedIndex()+1;
+                            String phone = tfPhone.getText();
+                            String address = tfAddress.getText();
+                            Float score = Float.parseFloat(tfScore.getText());
+                            con.updateStudent(std.getId(), new Student(name, new Class(idClass), score, address, phone));
+                            listStudent.getChildren().clear();
+                            displayAllStudent(vbox);
+                        }
+                    });
+                    listStudent.add(updateBtn,9,5);
+                    }
                 }
             });
             listStudent.add(deleteBnt, 6,count);
-            listStudent.add(updateBtn,7, count);
+            listStudent.add(EditBtn,7, count);
             count++;
         }
         Button addBtn = new Button("ADD");
@@ -116,10 +158,7 @@ public class Main extends Application {
         vbox.getChildren().add(listStudent);
     }
 
-    public void formUpdate (int id) {
-
-    }
-    public void formAdd (VBox vbox) {
+    public void ScreenFormAdd (VBox vbox) {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setVgap(10);
