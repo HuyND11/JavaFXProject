@@ -1,5 +1,6 @@
 package com.example.studentproject.Connection;
 
+import com.example.studentproject.Modles.Admin;
 import com.example.studentproject.Modles.Class;
 import com.example.studentproject.Modles.Student;
 
@@ -118,5 +119,30 @@ public class DataConnect {
             throw new RuntimeException(e);
         }
         return listClassName;
+    }
+    public ArrayList<Admin> getAdmin() {
+        ArrayList<Admin> admins = new ArrayList<>();
+        String sql = "Select * from admin";
+        try {
+            var result = this.conn.prepareStatement(sql).executeQuery();
+            while (result.next()) {
+                int id = result.getInt("id");
+                String name = result.getString("name");
+                String password = result.getString("password");
+                admins.add(new Admin(id, name, password));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return admins;
+    }
+    public void registerAdmin (Admin admin) {
+        String sql = "INSERT INTO admin (name, password) VALUES ('" + admin.getName() + "','" + admin.getPassword() + "')";
+        System.out.println(sql);
+        try {
+            conn.prepareStatement(sql).executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
